@@ -21,6 +21,11 @@ const createBuildQueue = () => {
   return new Queue(handler, createBaseOptions())
 }
 
+const runQuery = async (query, variables) => {
+  const graphqlRunner = new GraphQLRunner(store)
+  return await graphqlRunner.query(query, variables)
+}
+
 const createDevelopQueue = getRunner => {
   let queue
   const processing = new Set()
@@ -115,4 +120,5 @@ module.exports = {
   createBuildQueue,
   createDevelopQueue,
   processBatch,
+  runQuery,
 }

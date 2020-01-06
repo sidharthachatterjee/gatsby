@@ -163,6 +163,9 @@ const processQueries = async (queryJobs, activity) => {
   await queryQueue.processBatch(queue, queryJobs, activity)
 }
 
+const processQueryOnDemand = async (query, variables) =>
+  await queryQueue.runQuery(query, variables)
+
 const createStaticQueryJob = (state, queryId) => {
   const component = state.staticQueryComponents.get(queryId)
   const { hash, id, query, componentPath } = component
@@ -396,4 +399,5 @@ module.exports = {
   runQueuedQueries,
   enqueueExtractedQueryId,
   enqueueExtractedPageComponent,
+  processQueryOnDemand,
 }

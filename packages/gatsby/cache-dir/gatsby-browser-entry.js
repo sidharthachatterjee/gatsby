@@ -1,3 +1,4 @@
+/* eslint-disable no-debugger */
 import React from "react"
 import PropTypes from "prop-types"
 import Link, {
@@ -11,6 +12,11 @@ import Link, {
 } from "gatsby-link"
 import PageRenderer from "./public-page-renderer"
 import loader from "./loader"
+import { requestData } from "./socketIo"
+import md5 from "md5"
+const pDefer = require(`p-defer`)
+
+// const { processQueryOnDemand } = require(`../src/query`)
 
 const prefetchPathname = loader.enqueue
 
@@ -75,13 +81,47 @@ StaticQuery.propTypes = {
   children: PropTypes.func,
 }
 
-function graphql() {
-  throw new Error(
-    `It appears like Gatsby is misconfigured. Gatsby related \`graphql\` calls ` +
-      `are supposed to only be evaluated at compile time, and then compiled away. ` +
-      `Unfortunately, something went wrong and the query was left in the compiled code.\n\n` +
-      `Unless your site has a complex or custom babel/Gatsby configuration this is likely a bug in Gatsby.`
-  )
+function graphql(query) {
+  // throw new Error(
+  //   `It appears like Gatsby is misconfigured. Gatsby related \`graphql\` calls ` +
+  //     `are supposed to only be evaluated at compile time, and then compiled away. ` +
+  //     `Unfortunately, something went wrong and the query was left in the compiled code.\n\n` +
+  //     `Unless your site has a complex or custom babel/Gatsby configuration this is likely a bug in Gatsby.`
+  // )
+  console.log(`query`, query)
+  return query
+}
+
+class QueryResponseStore {
+  constructor() {
+    this.queryResultMap = new Map()
+  }
+  fetch(query, variables, hash) {
+    requestData(query, variables, hash)
+    return pDefer()
+  }
+  read(query, variables) {
+    const hash = md5([query, variables])
+    const queryResult = this.queryResultMap.get(hash)
+    if (queryResult) {
+      if (queryResult.promise instanceof Promise) {
+        throw queryResult.promise
+      } else {
+        return queryResult
+      }
+    } else {
+      const queryResultPromise = this.fetch(query, variables, hash)
+      this.queryResultMap.set(hash, queryResultPromise)
+      throw queryResultPromise.promise
+    }
+  }
+}
+
+const queryResponseStore = new QueryResponseStore()
+
+const useQuery = (query, variables) => {
+  const result = queryResponseStore.read(query, variables)
+  return result
 }
 
 export {
@@ -99,4 +139,6 @@ export {
   PageRenderer,
   useStaticQuery,
   prefetchPathname,
+  useQuery,
+  queryResponseStore,
 }

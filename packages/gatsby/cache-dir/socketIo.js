@@ -1,15 +1,16 @@
-import { reportError, clearError } from "./error-overlay-handler"
+// import { reportError, clearError } from "./error-overlay-handler"
 import normalizePagePath from "./normalize-page-path"
+import { queryResponseStore } from "./gatsby-browser-entry"
 
 let socket = null
 
 let staticQueryData = {}
 let pageQueryData = {}
-let isInitialized = false
+// let isInitialized = false
 
 export const getStaticQueryData = () => staticQueryData
 export const getPageQueryData = () => pageQueryData
-export const getIsInitialized = () => isInitialized
+// export const getIsInitialized = () => isInitialized
 
 export default function socketIo() {
   if (process.env.NODE_ENV !== `production`) {
@@ -45,12 +46,25 @@ export default function socketIo() {
                 [normalizePagePath(msg.payload.id)]: msg.payload.result,
               }
             }
-          } else if (msg.type === `overlayError`) {
-            if (msg.payload.message) {
-              reportError(msg.payload.id, msg.payload.message)
-            } else {
-              clearError(msg.payload.id)
-            }
+          }
+
+          // else if (msg.type === `overlayError`) {
+          //   if (msg.payload.message) {
+          //     reportError(msg.payload.id, msg.payload.message)
+          //   } else {
+          //     clearError(msg.payload.id)
+          //   }
+          // }
+
+          if (msg.type === `requestDataResult`) {
+            const queryResultPromise = queryResponseStore.queryResultMap.get(
+              msg.payload.hash
+            )
+            queryResponseStore.queryResultMap.set(
+              msg.payload.hash,
+              msg.payload.result
+            )
+            queryResultPromise.resolve(msg.payload.result)
           }
           if (msg.type && msg.payload) {
             ___emitter.emit(msg.type, msg.payload)
@@ -108,4 +122,9 @@ function unregisterPath(path) {
   socket.emit(`unregisterPath`, path)
 }
 
-export { getPageData, registerPath, unregisterPath }
+function requestData(query, variables, hash) {
+  console.log(query, variables, hash)
+  socket.emit(`requestData`, query, variables, hash)
+}
+
+export { getPageData, registerPath, unregisterPath, requestData }

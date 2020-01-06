@@ -13,6 +13,10 @@ const {
   replace,
 } = require(`lodash`)
 
+const ssrPrepass = require(`react-ssr-prepass`)
+
+// const { processQueryOnDemand } = require(`../src/query`)
+
 const apiRunner = require(`./api-runner-ssr`)
 const syncRequires = require(`./sync-requires`)
 const { version: gatsbyVersion } = require(`gatsby/package.json`)
@@ -103,7 +107,7 @@ const ensureArray = components => {
   }
 }
 
-export default (pagePath, callback) => {
+export default async (pagePath, callback) => {
   let bodyHtml = ``
   let headComponents = [
     <meta
@@ -171,9 +175,13 @@ export default (pagePath, callback) => {
   const pageDataUrl = getPageDataUrl(pagePath)
   const { componentChunkName } = pageData
 
+  let SSR_PREPASS = true
+
   class RouteHandler extends React.Component {
+    ssrPrepass = SSR_PREPASS
     render() {
       const props = {
+        ssrPrepass: this.ssrPrepass,
         ...this.props,
         ...pageData.result,
         // pathContext was deprecated in v2. Renamed to pageContext
@@ -237,6 +245,17 @@ export default (pagePath, callback) => {
   // If no one stepped up, we'll handle it.
   if (!bodyHtml) {
     try {
+      await ssrPrepass(
+        React.createElement(
+          React.Suspense,
+          {
+            fallback: <p>`Loading... please wait`</p>,
+          },
+          bodyComponent
+        )
+      )
+      SSR_PREPASS = false
+      // eslint-disable-next-line require-atomic-updates
       bodyHtml = renderToString(bodyComponent)
     } catch (e) {
       // ignore @reach/router redirect errors

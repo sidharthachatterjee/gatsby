@@ -1,4 +1,4 @@
-import React from "react"
+import React, { Suspense } from "react"
 import ReactDOM from "react-dom"
 import domReady from "@mikaelkristiansson/domready"
 
@@ -50,11 +50,11 @@ apiRunnerAsync(`onClientEntry`).then(() => {
 
   const rootElement = document.getElementById(`___gatsby`)
 
-  const renderer = apiRunner(
-    `replaceHydrateFunction`,
-    undefined,
-    ReactDOM.render
-  )[0]
+  // const renderer = apiRunner(
+  //   `replaceHydrateFunction`,
+  //   undefined,
+  //   ReactDOM.render
+  // )[0]
 
   Promise.all([
     loader.loadPage(`/dev-404-page/`),
@@ -64,9 +64,14 @@ apiRunnerAsync(`onClientEntry`).then(() => {
     const preferDefault = m => (m && m.default) || m
     let Root = preferDefault(require(`./root`))
     domReady(() => {
-      renderer(<Root />, rootElement, () => {
-        apiRunner(`onInitialClientRender`)
-      })
+      ReactDOM.createRoot(rootElement).render(
+        <Suspense fallback={<p>Loading... please wait</p>}>
+          <Root />
+        </Suspense>
+      )
+      // renderer(<Root />, rootElement, () => {
+      //   apiRunner(`onInitialClientRender`)
+      // })
     })
   })
 })

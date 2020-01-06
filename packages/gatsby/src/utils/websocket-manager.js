@@ -5,6 +5,7 @@ const { store } = require(`../redux`)
 const fs = require(`fs`)
 const pageDataUtil = require(`../utils/page-data`)
 const normalizePagePath = require(`../utils/normalize-page-path`)
+const { processQueryOnDemand } = require(`../query`)
 const telemetry = require(`gatsby-telemetry`)
 const url = require(`url`)
 const { createHash } = require(`crypto`)
@@ -241,6 +242,21 @@ class WebsocketManager {
 
       s.on(`unregisterPath`, path => {
         leaveRoom(path)
+      })
+
+      s.on(`requestData`, async (query, variables, hash) => {
+        // console.log(query, variables, hash)
+        const result = await processQueryOnDemand(query, variables)
+        // console.log(JSON.stringify(result))
+
+        this.websocket.send({
+          type: `requestDataResult`,
+          // why: `getDataForPath`,
+          payload: {
+            hash,
+            result,
+          },
+        })
       })
     })
 
