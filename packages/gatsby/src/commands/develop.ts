@@ -412,23 +412,23 @@ module.exports = async (program: IProgram): Promise<void> => {
   const { graphqlRunner } = await bootstrap(program)
 
   // Start the createPages hot reloader.
-  bootstrapPageHotReloader(graphqlRunner)
+  // bootstrapPageHotReloader(graphqlRunner)
 
   // Start the schema hot reloader.
-  bootstrapSchemaHotReloader()
+  // bootstrapSchemaHotReloader()
 
   await queryUtil.initialProcessQueries()
 
-  require(`../redux/actions`).boundActionCreators.setProgramStatus(
-    `BOOTSTRAP_QUERY_RUNNING_FINISHED`
-  )
-  await db.saveState()
+  // require(`../redux/actions`).boundActionCreators.setProgramStatus(
+  //   `BOOTSTRAP_QUERY_RUNNING_FINISHED`
+  // )
+  // await db.saveState()
 
-  await waitUntilAllJobsComplete()
-  requiresWriter.startListener()
-  db.startAutosave()
-  queryUtil.startListeningToDevelopQueue()
-  queryWatcher.startWatchDeletePage()
+  // await waitUntilAllJobsComplete()
+  // requiresWriter.startListener()
+  // db.startAutosave()
+  // queryUtil.startListeningToDevelopQueue()
+  // queryWatcher.startWatchDeletePage()
 
   let { compiler, webpackActivity } = await startServer(program)
 

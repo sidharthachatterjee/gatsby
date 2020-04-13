@@ -221,7 +221,7 @@ const fileByPath = (options = {}, fieldConfig) => async (
 
   if (fieldValue == null) return null
 
-  const findLinkedFileNode = relativePath => {
+  const findLinkedFileNode = async relativePath => {
     // Use the parent File node to create the absolute path to
     // the linked file.
     const fileLinkPath = normalize(
@@ -230,7 +230,7 @@ const fileByPath = (options = {}, fieldConfig) => async (
 
     // Use that path to find the linked File node.
     const linkedFileNode = _.find(
-      context.nodeModel.getAllNodes({ type: `File` }),
+      await context.nodeModel.getAllNodes({ type: `File` }),
       n => n.absolutePath === fileLinkPath
     )
     return linkedFileNode

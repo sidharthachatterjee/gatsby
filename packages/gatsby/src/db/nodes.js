@@ -30,6 +30,10 @@ switch (backend) {
     nodesDb = require(`./loki/nodes`)
     runQuery = require(`./loki/nodes-query`)
     break
+  case `mongodb`:
+    nodesDb = require(`./mongodb/nodes`)
+    runQuery = require(`./mongodb/nodes-query`)
+    break
   default:
     throw new Error(
       `Unsupported DB nodes backend (value of env var GATSBY_DB_NODES)`

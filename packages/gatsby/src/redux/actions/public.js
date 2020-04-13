@@ -506,6 +506,7 @@ ${reservedFields.map(f => `  * "${f}"`).join(`\n`)}
  * deleteNode({node: node})
  */
 actions.deleteNode = (options: any, plugin: Plugin, args: any) => {
+  console.log({ id: options.node.id, plugin: plugin.name })
   let id
 
   // Check if using old method signature. Warn about incorrect usage but get
@@ -725,6 +726,8 @@ const createNode = (
     node.parent = null
   }
 
+  // console.log({ node })
+
   // Tell user not to set the owner name themself.
   if (node.internal.owner) {
     report.error(JSON.stringify(node, null, 4))
@@ -797,95 +800,94 @@ const createNode = (
 
   node = sanitizeNode(node)
 
-  const oldNode = getNode(node.id)
+  // const oldNode = await getNode(node.id)
 
-  // Ensure the plugin isn't creating a node type owned by another
-  // plugin. Type "ownership" is first come first served.
-  if (plugin) {
-    const pluginName = plugin.name
+  // // Ensure the plugin isn't creating a node type owned by another
+  // // plugin. Type "ownership" is first come first served.
+  // if (plugin) {
+  //   const pluginName = plugin.name
 
-    if (!typeOwners[node.internal.type])
-      typeOwners[node.internal.type] = pluginName
-    else if (typeOwners[node.internal.type] !== pluginName)
-      throw new Error(stripIndent`
-        The plugin "${pluginName}" created a node of a type owned by another plugin.
+  //   if (!typeOwners[node.internal.type])
+  //     typeOwners[node.internal.type] = pluginName
+  //   else if (typeOwners[node.internal.type] !== pluginName)
+  //     throw new Error(stripIndent`
+  //       The plugin "${pluginName}" created a node of a type owned by another plugin.
 
-        The node type "${node.internal.type}" is owned by "${
-        typeOwners[node.internal.type]
-      }".
+  //       The node type "${node.internal.type}" is owned by "${
+  //       typeOwners[node.internal.type]
+  //     }".
 
-        If you copy and pasted code from elsewhere, you'll need to pick a new type name
-        for your new node(s).
+  //       If you copy and pasted code from elsewhere, you'll need to pick a new type name
+  //       for your new node(s).
 
-        The node object passed to "createNode":
+  //       The node object passed to "createNode":
 
-        ${JSON.stringify(node, null, 4)}
+  //       ${JSON.stringify(node, null, 4)}
 
-        The plugin creating the node:
+  //       The plugin creating the node:
 
-        ${JSON.stringify(plugin, null, 4)}
-      `)
+  //       ${JSON.stringify(plugin, null, 4)}
+  //     `)
 
-    // If the node has been created in the past, check that
-    // the current plugin is the same as the previous.
-    if (oldNode && oldNode.internal.owner !== pluginName) {
-      throw new Error(
-        stripIndent`
-        Nodes can only be updated by their owner. Node "${node.id}" is
-        owned by "${oldNode.internal.owner}" and another plugin "${pluginName}"
-        tried to update it.
+  //   // If the node has been created in the past, check that
+  //   // the current plugin is the same as the previous.
+  //   if (oldNode && oldNode.internal.owner !== pluginName) {
+  //     throw new Error(
+  //       stripIndent`
+  //       Nodes can only be updated by their owner. Node "${node.id}" is
+  //       owned by "${oldNode.internal.owner}" and another plugin "${pluginName}"
+  //       tried to update it.
 
-        `
-      )
-    }
+  //       `
+  //     )
+  //   }
+  // }
+
+  // if (actionOptions.parentSpan) {
+  //   actionOptions.parentSpan.setTag(`nodeId`, node.id)
+  //   actionOptions.parentSpan.setTag(`nodeType`, node.id)
+  // }
+
+  // let deleteActions
+  // let updateNodeAction
+  // // Check if the node has already been processed.
+  // if (oldNode && !hasNodeChanged(node.id, node.internal.contentDigest)) {
+  //   updateNodeAction = {
+  //     ...actionOptions,
+  //     plugin,
+  //     type: `TOUCH_NODE`,
+  //     payload: node.id,
+  //   }
+  // } else {
+  //   // Remove any previously created descendant nodes as they're all due
+  //   // to be recreated.
+  //   if (oldNode) {
+  //     const createDeleteAction = node => {
+  //       return {
+  //         ...actionOptions,
+  //         type: `DELETE_NODE`,
+  //         plugin,
+  //         payload: node,
+  //       }
+  //     }
+  //     deleteActions = findChildren(oldNode.children)
+  //       .map(getNode)
+  //       .map(createDeleteAction)
+  //   }
+
+  const updateNodeAction = {
+    ...actionOptions,
+    type: `CREATE_NODE`,
+    plugin,
+    // oldNode,
+    payload: node,
   }
 
-  if (actionOptions.parentSpan) {
-    actionOptions.parentSpan.setTag(`nodeId`, node.id)
-    actionOptions.parentSpan.setTag(`nodeType`, node.id)
-  }
-
-  let deleteActions
-  let updateNodeAction
-  // Check if the node has already been processed.
-  if (oldNode && !hasNodeChanged(node.id, node.internal.contentDigest)) {
-    updateNodeAction = {
-      ...actionOptions,
-      plugin,
-      type: `TOUCH_NODE`,
-      payload: node.id,
-    }
-  } else {
-    // Remove any previously created descendant nodes as they're all due
-    // to be recreated.
-    if (oldNode) {
-      const createDeleteAction = node => {
-        return {
-          ...actionOptions,
-          type: `DELETE_NODE`,
-          plugin,
-          payload: node,
-        }
-      }
-      deleteActions = findChildren(oldNode.children)
-        .map(getNode)
-        .map(createDeleteAction)
-    }
-
-    updateNodeAction = {
-      ...actionOptions,
-      type: `CREATE_NODE`,
-      plugin,
-      oldNode,
-      payload: node,
-    }
-  }
-
-  if (deleteActions && deleteActions.length) {
-    return [...deleteActions, updateNodeAction]
-  } else {
-    return updateNodeAction
-  }
+  // if (deleteActions && deleteActions.length) {
+  //   return [...deleteActions, updateNodeAction]
+  // } else {
+  return updateNodeAction
+  // }
 }
 
 actions.createNode = (...args) => dispatch => {

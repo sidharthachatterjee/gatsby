@@ -49,34 +49,25 @@ const getAllFieldExtensions = () => {
 // and then using this aggregated node structure in related GraphQL type.
 // Actual logic for inference located in inferenceMetadata reducer and ./infer
 // Here we just orchestrate the process via redux actions
-const buildInferenceMetadata = ({ types }) =>
-  new Promise(resolve => {
-    if (!types || !types.length) {
-      resolve()
-      return
-    }
-    const typeNames = [...types]
-    // TODO: use async iterators when we switch to node>=10
-    //  or better investigate if we can offload metadata building to worker/Jobs API
-    //  and then feed the result into redux?
-    const processNextType = () => {
-      const typeName = typeNames.pop()
-      store.dispatch({
-        type: `BUILD_TYPE_METADATA`,
-        payload: {
-          typeName,
-          nodes: nodeStore.getNodesByType(typeName),
-        },
-      })
-      if (typeNames.length > 0) {
-        // Give event-loop a break
-        setTimeout(processNextType, 0)
-      } else {
-        resolve()
-      }
-    }
-    processNextType()
-  })
+const buildInferenceMetadata = async ({ types }) => {
+  if (!types || !types.length) {
+    return
+  }
+  const typeNames = [...types]
+  const processNextType = async typeName => {
+    const nodes = await nodeStore.getNodesByType(typeName)
+    store.dispatch({
+      type: `BUILD_TYPE_METADATA`,
+      payload: {
+        typeName,
+        nodes,
+      },
+    })
+  }
+  for (const typeName of typeNames) {
+    await processNextType(typeName)
+  }
+}
 
 const build = async ({ parentSpan, fullMetadataBuild = true }) => {
   const spanArgs = parentSpan ? { childOf: parentSpan } : {}
@@ -87,7 +78,11 @@ const build = async ({ parentSpan, fullMetadataBuild = true }) => {
     // except for SitePage type: we rebuild it in rebuildWithSitePage anyway
     // so it makes little sense to update it incrementally
     // (and those updates may have significant performance overhead)
-    await buildInferenceMetadata({ types: nodeStore.getTypes() })
+
+    const types = await nodeStore.getTypes()
+    // console.log({ types })
+
+    await buildInferenceMetadata({ types })
     store.dispatch({ type: `START_INCREMENTAL_INFERENCE` })
     store.dispatch({ type: `DISABLE_TYPE_INFERENCE`, payload: [`SitePage`] })
   }

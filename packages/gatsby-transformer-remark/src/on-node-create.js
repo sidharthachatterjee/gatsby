@@ -46,6 +46,10 @@ module.exports = async function onCreateNode(
       },
     }
 
+    console.log({
+      data: data.data,
+    })
+
     markdownNode.frontmatter = {
       title: ``, // always include a title
       ...data.data,
@@ -61,8 +65,8 @@ module.exports = async function onCreateNode(
 
     markdownNode.internal.contentDigest = createContentDigest(markdownNode)
 
-    createNode(markdownNode)
-    createParentChildLink({ parent: node, child: markdownNode })
+    await createNode(markdownNode)
+    await createParentChildLink({ parent: node, child: markdownNode })
 
     return markdownNode
   } catch (err) {

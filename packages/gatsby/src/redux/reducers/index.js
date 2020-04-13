@@ -1,5 +1,6 @@
 const reduxNodes = require(`./nodes`)
 const lokiNodes = require(`../../db/loki/nodes`).reducer
+const mongodbNodes = require(`../../db/mongodb/nodes`).reducer
 
 const backend = process.env.GATSBY_DB_NODES || `redux`
 
@@ -11,6 +12,9 @@ function getNodesReducer() {
       break
     case `loki`:
       nodesReducer = lokiNodes
+      break
+    case `mongodb`:
+      nodesReducer = mongodbNodes
       break
     default:
       throw new Error(
@@ -27,6 +31,9 @@ function getNodesByTypeReducer() {
       nodesReducer = require(`./nodes-by-type`)
       break
     case `loki`:
+      nodesReducer = (state = null) => null
+      break
+    case `mongodb`:
       nodesReducer = (state = null) => null
       break
     default:

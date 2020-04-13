@@ -5,7 +5,7 @@ const { getExampleObject } = require(`./build-example-data`)
 const { addNodeInterface } = require(`../types/node-interface`)
 const { addInferredFields } = require(`./add-inferred-fields`)
 
-const addInferredTypes = ({
+const addInferredTypes = async ({
   schemaComposer,
   nodeStore,
   typeConflictReporter,
@@ -64,20 +64,22 @@ const addInferredTypes = ({
     report.panic(`Building schema failed`)
   }
 
-  return typesToInfer.map(typeComposer =>
-    addInferredType({
-      schemaComposer,
-      typeComposer,
-      nodeStore,
-      typeConflictReporter,
-      typeMapping,
-      parentSpan,
-      inferenceMetadata,
-    })
+  return Promise.all(
+    typesToInfer.map(typeComposer =>
+      addInferredType({
+        schemaComposer,
+        typeComposer,
+        nodeStore,
+        typeConflictReporter,
+        typeMapping,
+        parentSpan,
+        inferenceMetadata,
+      })
+    )
   )
 }
 
-const addInferredType = ({
+const addInferredType = async ({
   schemaComposer,
   typeComposer,
   nodeStore,
@@ -93,7 +95,7 @@ const addInferredType = ({
     typeComposer.getExtension(`createdFrom`) === `inference` &&
     hasNodes(inferenceMetadata.typeMap[typeName])
   ) {
-    const nodes = nodeStore.getNodesByType(typeName)
+    const nodes = await nodeStore.getNodesByType(typeName)
     typeComposer.setExtension(`plugin`, nodes[0].internal.owner)
   }
 
@@ -103,7 +105,7 @@ const addInferredType = ({
     typeConflictReporter,
   })
 
-  addInferredFields({
+  await addInferredFields({
     schemaComposer,
     typeComposer,
     nodeStore,

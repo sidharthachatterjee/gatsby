@@ -496,8 +496,8 @@ class ContextualNodeModel {
   }
 }
 
-const getNodeById = (nodeStore, id) =>
-  id != null ? nodeStore.getNode(id) : null
+const getNodeById = async (nodeStore, id) =>
+  id != null ? await nodeStore.getNode(id) : null
 
 const toNodeTypeNames = (schema, gqlTypeName) => {
   const gqlType =

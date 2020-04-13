@@ -9,7 +9,7 @@ const { isDate } = require(`../types/date`)
 const { addDerivedType } = require(`../types/derived-types`)
 import { is32BitInteger } from "../../utils/is-32-bit-integer"
 
-const addInferredFields = ({
+const addInferredFields = async ({
   schemaComposer,
   typeComposer,
   exampleValue,
@@ -26,7 +26,7 @@ const addInferredFields = ({
         : true,
     },
   })
-  addInferredFieldsImpl({
+  await addInferredFieldsImpl({
     schemaComposer,
     typeComposer,
     nodeStore,
@@ -42,7 +42,7 @@ module.exports = {
   addInferredFields,
 }
 
-const addInferredFieldsImpl = ({
+const addInferredFieldsImpl = async ({
   schemaComposer,
   typeComposer,
   nodeStore,
@@ -64,7 +64,7 @@ const addInferredFieldsImpl = ({
 
   const fieldsByKey = _.groupBy(fields, field => field.key)
 
-  Object.keys(fieldsByKey).forEach(key => {
+  Object.keys(fieldsByKey).forEach(async key => {
     const possibleFields = fieldsByKey[key]
     let selectedField
     if (possibleFields.length > 1) {
@@ -80,7 +80,7 @@ const addInferredFieldsImpl = ({
       selectedField = possibleFields[0]
     }
 
-    const fieldConfig = getFieldConfig({
+    const fieldConfig = await getFieldConfig({
       ...selectedField,
       schemaComposer,
       typeComposer,
@@ -140,7 +140,7 @@ const addInferredFieldsImpl = ({
   return typeComposer
 }
 
-const getFieldConfig = ({
+const getFieldConfig = async ({
   schemaComposer,
   typeComposer,
   nodeStore,
@@ -168,7 +168,7 @@ const getFieldConfig = ({
     // i.e. does the config contain sanitized field names?
     fieldConfig = getFieldConfigFromMapping({ typeMapping, selector })
   } else if (unsanitizedKey.includes(`___NODE`)) {
-    fieldConfig = getFieldConfigFromFieldNameConvention({
+    fieldConfig = await getFieldConfigFromFieldNameConvention({
       schemaComposer,
       nodeStore,
       value: exampleValue,
@@ -176,7 +176,7 @@ const getFieldConfig = ({
     })
     arrays = arrays + (value.multiple ? 1 : 0)
   } else {
-    fieldConfig = getSimpleFieldConfig({
+    fieldConfig = await getSimpleFieldConfig({
       schemaComposer,
       typeComposer,
       nodeStore,
@@ -248,7 +248,7 @@ const getFieldConfigFromMapping = ({ typeMapping, selector }) => {
 }
 
 // probably should be in example value
-const getFieldConfigFromFieldNameConvention = ({
+const getFieldConfigFromFieldNameConvention = async ({
   schemaComposer,
   nodeStore,
   value,
@@ -258,12 +258,14 @@ const getFieldConfigFromFieldNameConvention = ({
   // Allow linking by nested fields, e.g. `author___NODE___contact___email`
   const foreignKey = path && path.replace(/___/g, `.`)
 
-  const getNodeBy = value =>
+  const getNodeBy = async value =>
     foreignKey
-      ? nodeStore.getNodes().find(node => _.get(node, foreignKey) === value)
-      : nodeStore.getNode(value)
+      ? await nodeStore
+          .getNodes()
+          .find(node => _.get(node, foreignKey) === value)
+      : await nodeStore.getNode(value)
 
-  const linkedNodes = value.linkedNodes.map(getNodeBy)
+  const linkedNodes = await Promise.all(value.linkedNodes.map(getNodeBy))
 
   const linkedTypes = _.uniq(
     linkedNodes.filter(Boolean).map(node => node.internal.type)
@@ -299,7 +301,7 @@ const getFieldConfigFromFieldNameConvention = ({
   }
 }
 
-const getSimpleFieldConfig = ({
+const getSimpleFieldConfig = async ({
   schemaComposer,
   typeComposer,
   nodeStore,
@@ -388,7 +390,7 @@ const getSimpleFieldConfig = ({
         })
 
         return {
-          type: addInferredFieldsImpl({
+          type: await addInferredFieldsImpl({
             schemaComposer,
             typeComposer: fieldTypeComposer,
             nodeStore,

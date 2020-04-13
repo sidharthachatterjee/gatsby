@@ -84,10 +84,10 @@ module.exports = async ({ webhookBody = {}, parentSpan } = {}) => {
     webhookBody,
   })
 
-  const state = store.getState()
-  const nodes = getNodes()
+  // const state = store.getState()
+  // const nodes = await getNodes()
 
-  warnForPluginsWithoutNodes(state, nodes)
+  // warnForPluginsWithoutNodes(state, nodes)
 
-  deleteStaleNodes(state, nodes)
+  // deleteStaleNodes(state, nodes)
 }

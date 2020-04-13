@@ -162,7 +162,7 @@ module.exports = async (args: BootstrapArgs) => {
   activity.end()
 
   // run stale jobs
-  store.dispatch(removeStaleJobs(store.getState()))
+  // store.dispatch(removeStaleJobs(store.getState()))
 
   activity = report.activityTimer(`load plugins`, { parentSpan: bootstrapSpan })
   activity.start()
@@ -190,25 +190,25 @@ module.exports = async (args: BootstrapArgs) => {
 
   // During builds, delete html and css files from the public directory as we don't want
   // deleted pages and styles from previous builds to stick around.
-  if (
-    !process.env.GATSBY_EXPERIMENTAL_PAGE_BUILD_ON_DATA_CHANGES &&
-    process.env.NODE_ENV === `production`
-  ) {
-    activity = report.activityTimer(
-      `delete html and css files from previous builds`,
-      {
-        parentSpan: bootstrapSpan,
-      }
-    )
-    activity.start()
-    await del([
-      `public/**/*.{html,css}`,
-      `!public/page-data/**/*`,
-      `!public/static`,
-      `!public/static/**/*.{html,css}`,
-    ])
-    activity.end()
-  }
+  // if (
+  //   !process.env.GATSBY_EXPERIMENTAL_PAGE_BUILD_ON_DATA_CHANGES &&
+  //   process.env.NODE_ENV === `production`
+  // ) {
+  //   activity = report.activityTimer(
+  //     `delete html and css files from previous builds`,
+  //     {
+  //       parentSpan: bootstrapSpan,
+  //     }
+  //   )
+  //   activity.start()
+  //   await del([
+  //     `public/**/*.{html,css}`,
+  //     `!public/page-data/**/*`,
+  //     `!public/static`,
+  //     `!public/static/**/*.{html,css}`,
+  //   ])
+  //   activity.end()
+  // }
 
   activity = report.activityTimer(`initialize cache`, {
     parentSpan: bootstrapSpan,
@@ -245,33 +245,33 @@ module.exports = async (args: BootstrapArgs) => {
   //
   // Also if the hash isn't there, then delete things just in case something
   // is weird.
-  if (oldPluginsHash && pluginsHash !== oldPluginsHash) {
-    report.info(report.stripIndent`
-      One or more of your plugins have changed since the last time you ran Gatsby. As
-      a precaution, we're deleting your site's cache to ensure there's no stale data.
-    `)
-  }
+  // if (oldPluginsHash && pluginsHash !== oldPluginsHash) {
+  //   report.info(report.stripIndent`
+  //     One or more of your plugins have changed since the last time you ran Gatsby. As
+  //     a precaution, we're deleting your site's cache to ensure there's no stale data.
+  //   `)
+  // }
   const cacheDirectory = `${program.directory}/.cache`
-  if (!oldPluginsHash || pluginsHash !== oldPluginsHash) {
-    try {
-      // Attempt to empty dir if remove fails,
-      // like when directory is mount point
-      await fs.remove(cacheDirectory).catch(() => fs.emptyDir(cacheDirectory))
-    } catch (e) {
-      report.error(`Failed to remove .cache files.`, e)
-    }
-    // Tell reducers to delete their data (the store will already have
-    // been loaded from the file system cache).
-    store.dispatch({
-      type: `DELETE_CACHE`,
-    })
-  }
+  // if (!oldPluginsHash || pluginsHash !== oldPluginsHash) {
+  //   try {
+  //     // Attempt to empty dir if remove fails,
+  //     // like when directory is mount point
+  //     await fs.remove(cacheDirectory).catch(() => fs.emptyDir(cacheDirectory))
+  //   } catch (e) {
+  //     report.error(`Failed to remove .cache files.`, e)
+  //   }
+  //   // Tell reducers to delete their data (the store will already have
+  //   // been loaded from the file system cache).
+  //   store.dispatch({
+  //     type: `DELETE_CACHE`,
+  //   })
+  // }
 
-  // Update the store with the new plugins hash.
-  store.dispatch({
-    type: `UPDATE_PLUGINS_HASH`,
-    payload: pluginsHash,
-  })
+  // // Update the store with the new plugins hash.
+  // store.dispatch({
+  //   type: `UPDATE_PLUGINS_HASH`,
+  //   payload: pluginsHash,
+  // })
 
   // Now that we know the .cache directory is safe, initialize the cache
   // directory.
@@ -282,26 +282,31 @@ module.exports = async (args: BootstrapArgs) => {
 
   activity.end()
 
-  if (process.env.GATSBY_DB_NODES === `loki`) {
-    const loki = require(`../db/loki`)
-    // Start the nodes database (in memory loki js with interval disk
-    // saves). If data was saved from a previous build, it will be
-    // loaded here
-    activity = report.activityTimer(`start nodes db`, {
-      parentSpan: bootstrapSpan,
-    })
-    activity.start()
-    const dbSaveFile = `${cacheDirectory}/loki/loki.db`
-    try {
-      await loki.start({
-        saveFile: dbSaveFile,
-      })
-    } catch (e) {
-      report.error(
-        `Error starting DB. Perhaps try deleting ${path.dirname(dbSaveFile)}`
-      )
-    }
-    activity.end()
+  // if (process.env.GATSBY_DB_NODES === `loki`) {
+  //   const loki = require(`../db/loki`)
+  //   // Start the nodes database (in memory loki js with interval disk
+  //   // saves). If data was saved from a previous build, it will be
+  //   // loaded here
+  //   activity = report.activityTimer(`start nodes db`, {
+  //     parentSpan: bootstrapSpan,
+  //   })
+  //   activity.start()
+  //   const dbSaveFile = `${cacheDirectory}/loki/loki.db`
+  //   try {
+  //     await loki.start({
+  //       saveFile: dbSaveFile,
+  //     })
+  //   } catch (e) {
+  //     report.error(
+  //       `Error starting DB. Perhaps try deleting ${path.dirname(dbSaveFile)}`
+  //     )
+  //   }
+  //   activity.end()
+  // }
+
+  if (process.env.GATSBY_DB_NODES === `mongodb`) {
+    const mongodb = require(`../db/mongodb`)
+    await mongodb.start()
   }
 
   activity = report.activityTimer(`copy gatsby files`, {
@@ -540,12 +545,12 @@ module.exports = async (args: BootstrapArgs) => {
   activity.end()
 
   // Write out redirects.
-  activity = report.activityTimer(`write out redirect data`, {
-    parentSpan: bootstrapSpan,
-  })
-  activity.start()
-  await writeRedirects()
-  activity.end()
+  // activity = report.activityTimer(`write out redirect data`, {
+  //   parentSpan: bootstrapSpan,
+  // })
+  // activity.start()
+  // await writeRedirects()
+  // activity.end()
 
   activity = report.activityTimer(`onPostBootstrap`, {
     parentSpan: bootstrapSpan,
@@ -557,10 +562,10 @@ module.exports = async (args: BootstrapArgs) => {
   report.log(``)
   report.info(`bootstrap finished - ${process.uptime().toFixed(3)} s`)
   report.log(``)
-  emitter.emit(`BOOTSTRAP_FINISHED`)
-  require(`../redux/actions`).boundActionCreators.setProgramStatus(
-    `BOOTSTRAP_FINISHED`
-  )
+  // emitter.emit(`BOOTSTRAP_FINISHED`)
+  // require(`../redux/actions`).boundActionCreators.setProgramStatus(
+  //   `BOOTSTRAP_FINISHED`
+  // )
 
   bootstrapSpan.finish()
 

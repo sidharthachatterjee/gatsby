@@ -5,12 +5,13 @@ const isRelative = require(`is-relative`)
 const isRelativeUrl = require(`is-relative-url`)
 import { getValueAt } from "../../utils/get-value-at"
 
-const isFile = (nodeStore, fieldPath, relativePath) => {
+const isFile = async (nodeStore, fieldPath, relativePath) => {
   const filePath = getFilePath(nodeStore, fieldPath, relativePath)
   if (!filePath) return false
-  const filePathExists = nodeStore
-    .getNodesByType(`File`)
-    .some(node => node.absolutePath === filePath)
+
+  const nodes = await nodeStore.getNodesByType(`File`)
+
+  const filePathExists = nodes.some(node => node.absolutePath === filePath)
   return filePathExists
 }
 
@@ -26,7 +27,7 @@ const getFirstValueAt = (node, selector) => {
   return value
 }
 
-const getFilePath = (nodeStore, fieldPath, relativePath) => {
+const getFilePath = async (nodeStore, fieldPath, relativePath) => {
   const [typeName, ...selector] = Array.isArray(fieldPath)
     ? fieldPath
     : fieldPath.split(`.`)
@@ -44,9 +45,10 @@ const getFilePath = (nodeStore, fieldPath, relativePath) => {
   if (!looksLikeFile) return null
 
   const normalizedPath = slash(relativePath)
-  const node = nodeStore
-    .getNodesByType(typeName)
-    .find(node => getFirstValueAt(node, selector) === normalizedPath)
+  const nodes = await nodeStore.getNodesByType(typeName)
+  const node = nodes.find(
+    node => getFirstValueAt(node, selector) === normalizedPath
+  )
 
   return node ? getAbsolutePath(nodeStore, node, normalizedPath) : null
 }

@@ -1,7 +1,7 @@
 const path = require(`path`)
 const { slash } = require(`gatsby-core-utils`)
 
-function findFileNode({ node, getNode }) {
+async function findFileNode({ node, getNode }) {
   // Find the file node.
   let fileNode = node
 
@@ -9,10 +9,10 @@ function findFileNode({ node, getNode }) {
   while (
     fileNode.internal.type !== `File` &&
     fileNode.parent &&
-    getNode(fileNode.parent) !== undefined &&
+    (await getNode(fileNode.parent)) !== undefined &&
     whileCount < 101
   ) {
-    fileNode = getNode(fileNode.parent)
+    fileNode = await getNode(fileNode.parent)
 
     whileCount += 1
     if (whileCount > 100) {
@@ -26,15 +26,17 @@ function findFileNode({ node, getNode }) {
   return fileNode
 }
 
-module.exports = ({
+module.exports = async ({
   node,
   getNode,
   basePath = `src/pages`,
   trailingSlash = true,
 }) => {
   // Find the File node
-  const fileNode = findFileNode({ node, getNode })
-  if (!fileNode) return undefined
+  const fileNode = await findFileNode({ node, getNode })
+  if (!fileNode) {
+    return undefined
+  }
 
   const relativePath = path.posix.relative(
     slash(basePath),

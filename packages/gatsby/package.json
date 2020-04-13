@@ -102,6 +102,7 @@
     "mitt": "^1.2.0",
     "mkdirp": "^0.5.1",
     "moment": "^2.24.0",
+    "mongodb": "^3.5.5",
     "name-all-modules-plugin": "^1.0.1",
     "normalize-path": "^2.1.1",
     "null-loader": "^3.0.0",

@@ -1,0 +1,421 @@
+### Type definitions saved at 2020-04-04T19:18:54.955Z ###
+
+type File implements Node @dontInfer {
+  sourceInstanceName: String!
+  absolutePath: String!
+  relativePath: String!
+  extension: String!
+  size: Int!
+  prettySize: String!
+  modifiedTime: Date! @dateformat
+  accessTime: Date! @dateformat
+  changeTime: Date! @dateformat
+  birthTime: Date! @dateformat
+  root: String!
+  dir: String!
+  base: String!
+  ext: String!
+  name: String!
+  relativeDirectory: String!
+  dev: Int!
+  mode: Int!
+  nlink: Int!
+  uid: Int!
+  gid: Int!
+  rdev: Int!
+  ino: Float!
+  atimeMs: Float!
+  mtimeMs: Float!
+  ctimeMs: Float!
+  atime: Date! @dateformat
+  mtime: Date! @dateformat
+  ctime: Date! @dateformat
+  birthtime: Date @deprecated(reason: "Use `birthTime` instead")
+  birthtimeMs: Float @deprecated(reason: "Use `birthTime` instead")
+  blksize: Int
+  blocks: Int
+  _id: File_id
+}
+
+type File_id {
+  _bsontype: File @fileByRelativePath
+  id: File_idId
+}
+
+type File_idId {
+  _0: Int @proxy(from: "0", fromNode: false)
+  _1: Int @proxy(from: "1", fromNode: false)
+  _2: Int @proxy(from: "2", fromNode: false)
+  _3: Int @proxy(from: "3", fromNode: false)
+  _4: Int @proxy(from: "4", fromNode: false)
+  _5: Int @proxy(from: "5", fromNode: false)
+  _6: Int @proxy(from: "6", fromNode: false)
+  _7: Int @proxy(from: "7", fromNode: false)
+  _8: Int @proxy(from: "8", fromNode: false)
+  _9: Int @proxy(from: "9", fromNode: false)
+  _10: Int @proxy(from: "10", fromNode: false)
+  _11: Int @proxy(from: "11", fromNode: false)
+}
+
+type Directory implements Node @dontInfer {
+  sourceInstanceName: String!
+  absolutePath: String!
+  relativePath: String!
+  extension: String!
+  size: Int!
+  prettySize: String!
+  modifiedTime: Date! @dateformat
+  accessTime: Date! @dateformat
+  changeTime: Date! @dateformat
+  birthTime: Date! @dateformat
+  root: String!
+  dir: String!
+  base: String!
+  ext: String!
+  name: String!
+  relativeDirectory: String!
+  dev: Int!
+  mode: Int!
+  nlink: Int!
+  uid: Int!
+  gid: Int!
+  rdev: Int!
+  ino: Float!
+  atimeMs: Float!
+  mtimeMs: Float!
+  ctimeMs: Float!
+  atime: Date! @dateformat
+  mtime: Date! @dateformat
+  ctime: Date! @dateformat
+  birthtime: Date @deprecated(reason: "Use `birthTime` instead")
+  birthtimeMs: Float @deprecated(reason: "Use `birthTime` instead")
+  blksize: Int
+  blocks: Int
+  _id: Directory_id
+}
+
+type Directory_id {
+  _bsontype: File @fileByRelativePath
+  id: Directory_idId
+}
+
+type Directory_idId {
+  _0: Int @proxy(from: "0", fromNode: false)
+  _1: Int @proxy(from: "1", fromNode: false)
+  _2: Int @proxy(from: "2", fromNode: false)
+  _3: Int @proxy(from: "3", fromNode: false)
+  _4: Int @proxy(from: "4", fromNode: false)
+  _5: Int @proxy(from: "5", fromNode: false)
+  _6: Int @proxy(from: "6", fromNode: false)
+  _7: Int @proxy(from: "7", fromNode: false)
+  _8: Int @proxy(from: "8", fromNode: false)
+  _9: Int @proxy(from: "9", fromNode: false)
+  _10: Int @proxy(from: "10", fromNode: false)
+  _11: Int @proxy(from: "11", fromNode: false)
+}
+
+type SitePage implements Node @dontInfer {
+  path: String!
+  component: String!
+  internalComponentName: String!
+  componentChunkName: String!
+  matchPath: String
+  componentPath: File @fileByRelativePath
+  isCreatedByStatefulCreatePages: Boolean
+  pluginCreatorId: File @fileByRelativePath
+  _id: SitePage_id
+}
+
+type SitePage_id {
+  _bsontype: File @fileByRelativePath
+  id: SitePage_idId
+}
+
+type SitePage_idId {
+  _0: Int @proxy(from: "0", fromNode: false)
+  _1: Int @proxy(from: "1", fromNode: false)
+  _2: Int @proxy(from: "2", fromNode: false)
+  _3: Int @proxy(from: "3", fromNode: false)
+  _4: Int @proxy(from: "4", fromNode: false)
+  _5: Int @proxy(from: "5", fromNode: false)
+  _6: Int @proxy(from: "6", fromNode: false)
+  _7: Int @proxy(from: "7", fromNode: false)
+  _8: Int @proxy(from: "8", fromNode: false)
+  _9: Int @proxy(from: "9", fromNode: false)
+  _10: Int @proxy(from: "10", fromNode: false)
+  _11: Int @proxy(from: "11", fromNode: false)
+}
+
+type MarkdownHeading {
+  value: String
+  depth: Int
+}
+
+enum MarkdownHeadingLevels {
+  h1
+  h2
+  h3
+  h4
+  h5
+  h6
+}
+
+enum MarkdownExcerptFormats {
+  PLAIN
+  HTML
+  MARKDOWN
+}
+
+type MarkdownWordCount {
+  paragraphs: Int
+  sentences: Int
+  words: Int
+}
+
+type MarkdownRemark implements Node @childOf(mimeTypes: ["text/markdown", "text/x-markdown"], types: [], many: false) @dontInfer {
+  excerpt: File @fileByRelativePath
+  fileAbsolutePath: File @fileByRelativePath
+  rawMarkdownBody: File @fileByRelativePath
+  _id: MarkdownRemark_id
+  frontmatter: MarkdownRemarkFrontmatter
+  fields: MarkdownRemarkFields
+}
+
+type MarkdownRemark_id {
+  _bsontype: File @fileByRelativePath
+  id: MarkdownRemark_idId
+}
+
+type MarkdownRemark_idId {
+  _0: Int @proxy(from: "0", fromNode: false)
+  _1: Int @proxy(from: "1", fromNode: false)
+  _2: Int @proxy(from: "2", fromNode: false)
+  _3: Int @proxy(from: "3", fromNode: false)
+  _4: Int @proxy(from: "4", fromNode: false)
+  _5: Int @proxy(from: "5", fromNode: false)
+  _6: Int @proxy(from: "6", fromNode: false)
+  _7: Int @proxy(from: "7", fromNode: false)
+  _8: Int @proxy(from: "8", fromNode: false)
+  _9: Int @proxy(from: "9", fromNode: false)
+  _10: Int @proxy(from: "10", fromNode: false)
+  _11: Int @proxy(from: "11", fromNode: false)
+}
+
+type MarkdownRemarkFrontmatter {
+  title: File @fileByRelativePath
+  date: Date @dateformat
+  description: File @fileByRelativePath
+}
+
+type MarkdownRemarkFields {
+  slug: File @fileByRelativePath
+}
+
+enum ImageFormat {
+  NO_CHANGE
+  JPG
+  PNG
+  WEBP
+}
+
+enum ImageFit {
+  COVER
+  CONTAIN
+  FILL
+  INSIDE
+  OUTSIDE
+}
+
+enum ImageCropFocus {
+  CENTER
+  NORTH
+  NORTHEAST
+  EAST
+  SOUTHEAST
+  SOUTH
+  SOUTHWEST
+  WEST
+  NORTHWEST
+  ENTROPY
+  ATTENTION
+}
+
+input DuotoneGradient {
+  highlight: String!
+  shadow: String!
+  opacity: Int
+}
+
+enum PotraceTurnPolicy {
+  TURNPOLICY_BLACK
+  TURNPOLICY_WHITE
+  TURNPOLICY_LEFT
+  TURNPOLICY_RIGHT
+  TURNPOLICY_MINORITY
+  TURNPOLICY_MAJORITY
+}
+
+input Potrace {
+  turnPolicy: PotraceTurnPolicy
+  turdSize: Float
+  alphaMax: Float
+  optCurve: Boolean
+  optTolerance: Float
+  threshold: Int
+  blackOnWhite: Boolean
+  color: String
+  background: String
+}
+
+type ImageSharp implements Node @childOf(mimeTypes: [], types: ["File"], many: false) @dontInfer {
+  fixed(width: Int, height: Int, base64Width: Int, jpegProgressive: Boolean = true, pngCompressionSpeed: Int = 4, grayscale: Boolean = false, duotone: DuotoneGradient, traceSVG: Potrace, quality: Int, jpegQuality: Int, pngQuality: Int, webpQuality: Int, toFormat: ImageFormat = NO_CHANGE, toFormatBase64: ImageFormat = NO_CHANGE, cropFocus: ImageCropFocus = ATTENTION, fit: ImageFit = COVER, background: String = "rgba(0,0,0,1)", rotate: Int = 0, trim: Float = 0): ImageSharpFixed
+  resolutions(width: Int, height: Int, base64Width: Int, jpegProgressive: Boolean = true, pngCompressionSpeed: Int = 4, grayscale: Boolean = false, duotone: DuotoneGradient, traceSVG: Potrace, quality: Int, jpegQuality: Int, pngQuality: Int, webpQuality: Int, toFormat: ImageFormat = NO_CHANGE, toFormatBase64: ImageFormat = NO_CHANGE, cropFocus: ImageCropFocus = ATTENTION, fit: ImageFit = COVER, background: String = "rgba(0,0,0,1)", rotate: Int = 0, trim: Float = 0): ImageSharpResolutions @deprecated(reason: "Resolutions was deprecated in Gatsby v2. It's been renamed to \"fixed\" https://example.com/write-docs-and-fix-this-example-link")
+  fluid(
+    maxWidth: Int
+    maxHeight: Int
+    base64Width: Int
+    grayscale: Boolean = false
+    jpegProgressive: Boolean = true
+    pngCompressionSpeed: Int = 4
+    duotone: DuotoneGradient
+    traceSVG: Potrace
+    quality: Int
+    jpegQuality: Int
+    pngQuality: Int
+    webpQuality: Int
+    toFormat: ImageFormat = NO_CHANGE
+    toFormatBase64: ImageFormat = NO_CHANGE
+    cropFocus: ImageCropFocus = ATTENTION
+    fit: ImageFit = COVER
+    background: String = "rgba(0,0,0,1)"
+    rotate: Int = 0
+    trim: Float = 0
+    sizes: String = ""
+
+    """
+    A list of image widths to be generated. Example: [ 200, 340, 520, 890 ]
+    """
+    srcSetBreakpoints: [Int] = []
+  ): ImageSharpFluid
+  sizes(
+    maxWidth: Int
+    maxHeight: Int
+    base64Width: Int
+    grayscale: Boolean = false
+    jpegProgressive: Boolean = true
+    pngCompressionSpeed: Int = 4
+    duotone: DuotoneGradient
+    traceSVG: Potrace
+    quality: Int
+    jpegQuality: Int
+    pngQuality: Int
+    webpQuality: Int
+    toFormat: ImageFormat = NO_CHANGE
+    toFormatBase64: ImageFormat = NO_CHANGE
+    cropFocus: ImageCropFocus = ATTENTION
+    fit: ImageFit = COVER
+    background: String = "rgba(0,0,0,1)"
+    rotate: Int = 0
+    trim: Float = 0
+    sizes: String = ""
+
+    """
+    A list of image widths to be generated. Example: [ 200, 340, 520, 890 ]
+    """
+    srcSetBreakpoints: [Int] = []
+  ): ImageSharpSizes @deprecated(reason: "Sizes was deprecated in Gatsby v2. It's been renamed to \"fluid\" https://example.com/write-docs-and-fix-this-example-link")
+  original: ImageSharpOriginal
+  resize(width: Int, height: Int, quality: Int, jpegQuality: Int, pngQuality: Int, webpQuality: Int, jpegProgressive: Boolean = true, pngCompressionLevel: Int = 9, pngCompressionSpeed: Int = 4, grayscale: Boolean = false, duotone: DuotoneGradient, base64: Boolean = false, traceSVG: Potrace, toFormat: ImageFormat = NO_CHANGE, cropFocus: ImageCropFocus = ATTENTION, fit: ImageFit = COVER, background: String = "rgba(0,0,0,1)", rotate: Int = 0, trim: Float = 0): ImageSharpResize
+  _id: ImageSharp_id
+}
+
+type ImageSharpFixed {
+  base64: String
+  tracedSVG: String
+  aspectRatio: Float
+  width: Float!
+  height: Float!
+  src: String!
+  srcSet: String!
+  srcWebp: String
+  srcSetWebp: String
+  originalName: String
+}
+
+type ImageSharpResolutions {
+  base64: String
+  tracedSVG: String
+  aspectRatio: Float
+  width: Float!
+  height: Float!
+  src: String!
+  srcSet: String!
+  srcWebp: String
+  srcSetWebp: String
+  originalName: String
+}
+
+type ImageSharpFluid {
+  base64: String
+  tracedSVG: String
+  aspectRatio: Float!
+  src: String!
+  srcSet: String!
+  srcWebp: String
+  srcSetWebp: String
+  sizes: String!
+  originalImg: String
+  originalName: String
+  presentationWidth: Int
+  presentationHeight: Int
+}
+
+type ImageSharpSizes {
+  base64: String
+  tracedSVG: String
+  aspectRatio: Float!
+  src: String!
+  srcSet: String!
+  srcWebp: String
+  srcSetWebp: String
+  sizes: String!
+  originalImg: String
+  originalName: String
+  presentationWidth: Int
+  presentationHeight: Int
+}
+
+type ImageSharpOriginal {
+  width: Float
+  height: Float
+  src: String
+}
+
+type ImageSharpResize {
+  src: String
+  tracedSVG: String
+  width: Int
+  height: Int
+  aspectRatio: Float
+  originalName: String
+}
+
+type ImageSharp_id {
+  _bsontype: File @fileByRelativePath
+  id: ImageSharp_idId
+}
+
+type ImageSharp_idId {
+  _0: Int @proxy(from: "0", fromNode: false)
+  _1: Int @proxy(from: "1", fromNode: false)
+  _2: Int @proxy(from: "2", fromNode: false)
+  _3: Int @proxy(from: "3", fromNode: false)
+  _4: Int @proxy(from: "4", fromNode: false)
+  _5: Int @proxy(from: "5", fromNode: false)
+  _6: Int @proxy(from: "6", fromNode: false)
+  _7: Int @proxy(from: "7", fromNode: false)
+  _8: Int @proxy(from: "8", fromNode: false)
+  _9: Int @proxy(from: "9", fromNode: false)
+  _10: Int @proxy(from: "10", fromNode: false)
+  _11: Int @proxy(from: "11", fromNode: false)
+}
